@@ -15,15 +15,37 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _signInWithGoogle() async {
     setState(() => _isLoading = true);
     
-    final result = await AuthService.instance.signInWithGoogle();
-    
-    setState(() => _isLoading = false);
-    
-    if (result != null && mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+    try {
+      final result = await AuthService.instance.signInWithGoogle();
+      
+      if (result != null && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      
+      String message = 'Giriş yapılamadı: $e';
+      if (e.toString().contains('configuration-not-found')) {
+        message = 'Google ile Giriş özelliği aktif değil.\nLütfen Firebase Console\'dan Google Autha\'ı etkinleştirin.';
+      }
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
+          action: SnackBarAction(
+            label: 'Tamam',
+            textColor: Colors.white,
+            onPressed: () {},
+          ),
+        ),
       );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
