@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1078273091580",
+    "project_id": "harf-cemberi",
+    "storage_bucket": "harf-cemberi.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1078273091580:android:7145c304f07a4c77117479",
+        "android_client_info": {
+          "package_name": "com.example.harf_cemberi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1078273091580-c5hp99gl9tf0b1rm2ke0i81k6jcqophv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9bT2Pq1FgRDpPomuD4f0mGueLCZ-UsNE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1078273091580-c5hp99gl9tf0b1rm2ke0i81k6jcqophv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
