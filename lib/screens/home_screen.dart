@@ -3,6 +3,8 @@ import '../services/auth_service.dart';
 import '../services/database_helper.dart';
 import 'game_screen.dart';
 import 'login_screen.dart';
+import 'social_screen.dart';
+import '../services/firestore_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,6 +21,14 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadCategories();
+    _saveUserToFirestore();
+  }
+
+  Future<void> _saveUserToFirestore() async {
+    final user = AuthService.instance.currentUser;
+    if (user != null) {
+      await FirestoreService.instance.saveUser(user);
+    }
   }
 
   Future<void> _loadCategories() async {
@@ -35,32 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  IconData _getIconFromName(String iconName) {
-    switch (iconName) {
-      case 'quiz':
-        return Icons.quiz;
-      case 'movie':
-        return Icons.movie;
-      case 'sports_soccer':
-        return Icons.sports_soccer;
-      case 'history_edu':
-        return Icons.history_edu;
-      case 'public':
-        return Icons.public;
-      case 'restaurant':
-        return Icons.restaurant;
-      case 'science':
-        return Icons.science;
-      case 'music_note':
-        return Icons.music_note;
-      case 'menu_book':
-        return Icons.menu_book;
-      case 'pets':
-        return Icons.pets;
-      default:
-        return Icons.category;
-    }
-  }
+
 
   Color _getCategoryColor(int index) {
     final colors = [
@@ -103,6 +88,16 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: const Color(0xFF16213E),
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.leaderboard, color: Colors.yellow),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SocialScreen()),
+              );
+            },
+            tooltip: 'Sıralama ve Arkadaşlar',
+          ),
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white70),
             onPressed: _signOut,
@@ -217,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             crossAxisCount: 2,
                             crossAxisSpacing: 12,
                             mainAxisSpacing: 12,
-                            childAspectRatio: 1.1,
+                            childAspectRatio: 2.5,
                           ),
                           itemCount: categories.length,
                           itemBuilder: (context, index) {
@@ -242,61 +237,34 @@ class _HomeScreenState extends State<HomeScreen> {
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                     colors: [
-                                      color.withValues(alpha: 0.8),
-                                      color.withValues(alpha: 0.5),
+                                      color.withValues(alpha: 0.9),
+                                      color.withValues(alpha: 0.7),
                                     ],
                                   ),
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: BorderRadius.circular(20), // Daha yuvarlak
                                   boxShadow: [
                                     BoxShadow(
                                       color: color.withValues(alpha: 0.3),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 3),
                                     ),
                                   ],
                                 ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      // Icon
-                                      Container(
-                                        padding: const EdgeInsets.all(10),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withValues(alpha: 0.2),
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                        child: Icon(
-                                          _getIconFromName(category.iconName),
-                                          color: Colors.white,
-                                          size: 28,
-                                        ),
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                                    child: Text(
+                                      category.name,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.5,
                                       ),
-                                      const Spacer(),
-                                      // Name
-                                      Text(
-                                        category.name,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(height: 4),
-                                      // Description
-                                      Text(
-                                        category.description,
-                                        style: TextStyle(
-                                          color: Colors.white.withValues(alpha: 0.8),
-                                          fontSize: 11,
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
+                                      textAlign: TextAlign.center,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
                                 ),
                               ),

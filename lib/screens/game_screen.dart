@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../services/firestore_service.dart';
 import '../services/database_helper.dart';
 import 'result_screen.dart';
 
@@ -169,6 +170,9 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         .length;
     
     final finalScore = calculateFinalScore();
+    
+    // Save score to Firestore
+    FirestoreService.instance.saveScore(finalScore, widget.categoryName);
     
     Navigator.pushReplacement(
       context,
