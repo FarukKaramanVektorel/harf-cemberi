@@ -34,7 +34,7 @@ class AuthService {
       }
     } catch (e) {
       debugPrint('Error signing in with Google: $e');
-      throw e;
+      rethrow;
     }
   }
 
