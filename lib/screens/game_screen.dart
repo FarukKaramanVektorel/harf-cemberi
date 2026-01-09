@@ -62,6 +62,10 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   Timer? _gameTimer;
   int _elapsedSeconds = 0;
 
+  // Pass rights
+  static const int maxPasses = 5;
+  int remainingPasses = maxPasses;
+
   // Scoring - will be calculated at the end
   int correctAnswers = 0;
 
@@ -285,7 +289,10 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   }
 
   void _passQuestion() {
+    if (remainingPasses <= 0) return;
+
     setState(() {
+      remainingPasses--;
       letterStates[currentLetterIndex] = LetterState.wrong;
       
       if (currentIndex < questions.length - 1) {
@@ -690,22 +697,22 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                   
                   // Pass Button
                   TextButton.icon(
-                    onPressed: _passQuestion,
-                    icon: const Icon(
+                    onPressed: remainingPasses > 0 ? _passQuestion : null,
+                    icon: Icon(
                       Icons.skip_next, 
-                      color: Colors.orange,
+                      color: remainingPasses > 0 ? Colors.orange : Colors.grey,
                     ),
-                    label: const Text(
-                      'Pas Geç',
+                    label: Text(
+                      'Pas Geç ($remainingPasses)',
                       style: TextStyle(
-                        color: Colors.orange, 
+                        color: remainingPasses > 0 ? Colors.orange : Colors.grey, 
                         fontSize: 16,
                       ),
                     ),
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      side: const BorderSide(
-                        color: Colors.orange,
+                      side: BorderSide(
+                        color: remainingPasses > 0 ? Colors.orange : Colors.grey,
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
