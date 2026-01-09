@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'game_screen.dart';
+import 'home_screen.dart';
 
 class ResultScreen extends StatefulWidget {
   final int currentScore;
@@ -8,6 +9,8 @@ class ResultScreen extends StatefulWidget {
   final int wrongCount;
   final int totalQuestions;
   final int timeUsedSeconds;
+  final int categoryId;
+  final String categoryName;
 
   const ResultScreen({
     super.key,
@@ -16,6 +19,8 @@ class ResultScreen extends StatefulWidget {
     required this.wrongCount,
     required this.totalQuestions,
     required this.timeUsedSeconds,
+    required this.categoryId,
+    required this.categoryName,
   });
 
   @override
@@ -50,7 +55,9 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
 
   Future<void> _loadAndCompareBestScore() async {
     final prefs = await SharedPreferences.getInstance();
-    final savedBestScore = prefs.getInt('bestScore') ?? 0;
+    // Use category-specific best score key
+    final key = 'bestScore_${widget.categoryId}';
+    final savedBestScore = prefs.getInt(key) ?? 0;
     
     setState(() {
       bestScore = savedBestScore;
@@ -58,7 +65,7 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
 
     // Check if new record
     if (widget.currentScore > savedBestScore) {
-      await prefs.setInt('bestScore', widget.currentScore);
+      await prefs.setInt(key, widget.currentScore);
       setState(() {
         bestScore = widget.currentScore;
         isNewRecord = true;
@@ -91,6 +98,25 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // Category Name
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      widget.categoryName,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
                   // Title with icon
                   if (isNewRecord) ...[
                     const Icon(Icons.emoji_events, color: Colors.amber, size: 64),
@@ -232,30 +258,65 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                   
                   const SizedBox(height: 40),
                   
-                  // Play Again Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (_) => const GameScreen()),
-                        );
-                      },
-                      icon: const Icon(Icons.refresh, size: 28),
-                      label: const Text(
-                        'Tekrar Oyna',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                  // Buttons Row
+                  Row(
+                    children: [
+                      // Home Button
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (_) => const HomeScreen()),
+                            );
+                          },
+                          icon: const Icon(Icons.home, color: Colors.white70),
+                          label: const Text(
+                            'Ana Sayfa',
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            side: const BorderSide(color: Colors.white38),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      
+                      const SizedBox(width: 16),
+                      
+                      // Play Again Button
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => GameScreen(
+                                  categoryId: widget.categoryId,
+                                  categoryName: widget.categoryName,
+                                ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.refresh, size: 24),
+                          label: const Text(
+                            'Tekrar',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

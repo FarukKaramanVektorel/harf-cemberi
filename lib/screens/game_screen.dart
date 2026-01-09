@@ -21,7 +21,14 @@ const List<String> turkishAlphabet = [
 enum LetterState { pending, correct, wrong, current }
 
 class GameScreen extends StatefulWidget {
-  const GameScreen({super.key});
+  final int categoryId;
+  final String categoryName;
+
+  const GameScreen({
+    super.key,
+    required this.categoryId,
+    required this.categoryName,
+  });
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -110,7 +117,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
     try {
       final dbHelper = DatabaseHelper.instance;
-      final loadedQuestions = await dbHelper.getAllQuestions();
+      final loadedQuestions = await dbHelper.getQuestionsByCategory(widget.categoryId);
       
       setState(() {
         questions = loadedQuestions;
@@ -168,6 +175,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           wrongCount: wrongCount,
           totalQuestions: questions.length,
           timeUsedSeconds: _elapsedSeconds,
+          categoryId: widget.categoryId,
+          categoryName: widget.categoryName,
         ),
       ),
     );
@@ -276,7 +285,6 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   }
 
   void _passQuestion() {
-    
     setState(() {
       letterStates[currentLetterIndex] = LetterState.wrong;
       
@@ -320,6 +328,11 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     if (isLoading) {
       return Scaffold(
         backgroundColor: const Color(0xFF1A1A2E),
+        appBar: AppBar(
+          title: Text(widget.categoryName, style: const TextStyle(color: Colors.white)),
+          backgroundColor: const Color(0xFF16213E),
+          iconTheme: const IconThemeData(color: Colors.white),
+        ),
         body: const Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -340,6 +353,11 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     if (questions.isEmpty) {
       return Scaffold(
         backgroundColor: const Color(0xFF1A1A2E),
+        appBar: AppBar(
+          title: Text(widget.categoryName, style: const TextStyle(color: Colors.white)),
+          backgroundColor: const Color(0xFF16213E),
+          iconTheme: const IconThemeData(color: Colors.white),
+        ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -347,14 +365,14 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
               const Icon(Icons.error_outline, color: Colors.red, size: 64),
               const SizedBox(height: 16),
               const Text(
-                'Soru bulunamadı!',
+                'Bu kategoride soru bulunamadı!',
                 style: TextStyle(color: Colors.white, fontSize: 20),
               ),
               const SizedBox(height: 24),
               ElevatedButton.icon(
-                onPressed: _loadQuestions,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Tekrar Dene'),
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.arrow_back),
+                label: const Text('Geri Dön'),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
               ),
             ],
@@ -366,9 +384,9 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
       appBar: AppBar(
-        title: const Text(
-          'Harf Çemberi',
-          style: TextStyle(
+        title: Text(
+          widget.categoryName,
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
@@ -376,6 +394,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         centerTitle: true,
         backgroundColor: const Color(0xFF16213E),
         elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           Center(
             child: Padding(
